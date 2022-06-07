@@ -81,7 +81,7 @@ func main() {
 	// as just an example
 	for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
 		//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Id)
-		catalog := "C:/PriceYUG/photo/" + users.Shop[0].Offers[0].Offer[i].Id
+		catalog := "C:/PriceYUG/photo/" + users.Shop[0].Offers[0].Offer[i].Id + "_L"
 		for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
 			//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Picture[d])
 			download(users.Shop[0].Offers[0].Offer[i].Picture[d], catalog)
