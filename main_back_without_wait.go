@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -62,23 +61,18 @@ func main() {
 	//fileUrl := "https://loveyouhome.ua/index.php?route=extension/feed/unixml/priceru"
 	//DownloadFile("C://PriceLove/priceru.xml", fileUrl)
 	fileUrl2 := "https://loveyouhome.ua/index.php?route=extension/feed/unixml/tomasby"
-	DownloadPrice("./temp/tomasby.xml", fileUrl2)
+	DownloadPrice("./temp2/tomasby.xml", fileUrl2)
 
-	ParseXml("./temp/tomasby.xml")
+	ParseXml("./temp2/tomasby.xml")
 	InfoLogger.Println("tomasby.xml", "Done")
+	//photodown("priceru.xml")
+	//InfoLogger.Println("priceru.xml", "Done")
 	duration := time.Since(start)
 	fmt.Println("Время выполнения: ", duration)
 
 }
 
 func ParseXml(flieUrl string) {
-
-	tick := time.NewTicker(time.Second)
-	defer tick.Stop()
-	wg := new(sync.WaitGroup)
-	results := make(map[string]string)
-	structCh := make(chan struct{})
-
 	xmlFile, err := os.Open(flieUrl)
 	// if we os.Open returns an error then handle it
 	if err != nil {
@@ -101,43 +95,19 @@ func ParseXml(flieUrl string) {
 	// we iterate through every user within our users array and
 	// print out the user Type, their name, and their facebook url
 	// as just an example
-	start := time.Now()
+	for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
+		//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Id)
+		//catalog := "C:/PriceYUG/photo/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
+		catalog := "./temp2/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
+		for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
+			//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Picture[d])
+			InfoLogger.Println(users.Shop[0].Offers[0].Offer[i].VendorCode + "_L")
+			go DownloadPhoto(users.Shop[0].Offers[0].Offer[i].Picture[d], catalog)
 
-	go func(structCh chan struct{}) {
-		defer close(structCh)
-		for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
-			catalog := "./temp/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-			for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
-				InfoLogger.Println(users.Shop[0].Offers[0].Offer[i].VendorCode + "_L")
-				results[users.Shop[0].Offers[0].Offer[i].Picture[d]] = catalog
-			}
 		}
-	}(structCh)
-	<-structCh
-	duration := time.Since(start)
-	fmt.Println("Время выполнения 1 горутины: ", duration)
-	for picture, catalog := range results {
-		wg.Add(1)
-		go DownloadPhoto(picture, catalog, tick.C, wg)
+		//fmt.Println("User Name: " + users.Shop[i].)
+		//fmt.Println("Facebook Url: " + users.Offer[i].Social.Facebook)
 	}
-	wg.Wait()
-
-	//for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
-	//	//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Id)
-	//	//catalog := "C:/PriceYUG/photo/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-	//	catalog := "./temp/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-	//	//go func() {
-	//	for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
-	//		wg.Add(1)
-	//		//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Picture[d])
-	//		InfoLogger.Println(users.Shop[0].Offers[0].Offer[i].VendorCode + "_L")
-	//		go DownloadPhoto(users.Shop[0].Offers[0].Offer[i].Picture[d], catalog, tick.C, wg)
-	//	}
-	//	wg.Wait()
-	//	//}()
-	//	//fmt.Println("User Name: " + users.Shop[i].)
-	//	//fmt.Println("Facebook Url: " + users.Offer[i].Social.Facebook)
-	//}
 }
 
 // DownloadFile will download a url to a local file. It's efficient because it will
@@ -165,9 +135,7 @@ func DownloadPrice(filepath string, url string) {
 	}
 }
 
-func DownloadPhoto(url string, catalog string, limit <-chan time.Time, wg *sync.WaitGroup) {
-	defer wg.Done()
-	<-limit
+func DownloadPhoto(url string, catalog string) {
 	fileName := catalog + "/" + url[strings.LastIndex(url, "/")+1:]
 	_, err := os.Stat(fileName)
 	if err != nil {
