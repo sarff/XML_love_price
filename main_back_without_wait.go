@@ -95,14 +95,14 @@ func ParseXml(flieUrl string) {
 	// we iterate through every user within our users array and
 	// print out the user Type, their name, and their facebook url
 	// as just an example
-	for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
+	for _, offer := range users.Shop[0].Offers[0].Offer {
 		//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Id)
 		//catalog := "C:/PriceYUG/photo/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-		catalog := "./temp2/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-		for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
+		catalog := "./temp2/" + offer.VendorCode + "_L"
+		for _, picture := range offer.Picture {
 			//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Picture[d])
-			InfoLogger.Println(users.Shop[0].Offers[0].Offer[i].VendorCode + "_L")
-			go DownloadPhoto(users.Shop[0].Offers[0].Offer[i].Picture[d], catalog)
+			InfoLogger.Println(offer.VendorCode + "_L")
+			go DownloadPhoto(picture, catalog)
 
 		}
 		//fmt.Println("User Name: " + users.Shop[i].)

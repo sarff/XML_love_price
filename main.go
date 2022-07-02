@@ -105,11 +105,13 @@ func ParseXml(flieUrl string) {
 
 	go func(structCh chan struct{}) {
 		defer close(structCh)
-		for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
-			catalog := "./temp/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-			for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
-				InfoLogger.Println(users.Shop[0].Offers[0].Offer[i].VendorCode + "_L")
-				results[users.Shop[0].Offers[0].Offer[i].Picture[d]] = catalog
+		//for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
+		for _, offer := range users.Shop[0].Offers[0].Offer {
+			catalog := "./temp/" + offer.VendorCode + "_L"
+			//for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
+			for _, picture := range offer.Picture {
+				InfoLogger.Println(offer.VendorCode + "_L")
+				results[picture] = catalog
 			}
 		}
 	}(structCh)
@@ -122,22 +124,6 @@ func ParseXml(flieUrl string) {
 	}
 	wg.Wait()
 
-	//for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
-	//	//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Id)
-	//	//catalog := "C:/PriceYUG/photo/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-	//	catalog := "./temp/" + users.Shop[0].Offers[0].Offer[i].VendorCode + "_L"
-	//	//go func() {
-	//	for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
-	//		wg.Add(1)
-	//		//fmt.Println("User Type: " + users.Shop[0].Offers[0].Offer[i].Picture[d])
-	//		InfoLogger.Println(users.Shop[0].Offers[0].Offer[i].VendorCode + "_L")
-	//		go DownloadPhoto(users.Shop[0].Offers[0].Offer[i].Picture[d], catalog, tick.C, wg)
-	//	}
-	//	wg.Wait()
-	//	//}()
-	//	//fmt.Println("User Name: " + users.Shop[i].)
-	//	//fmt.Println("Facebook Url: " + users.Offer[i].Social.Facebook)
-	//}
 }
 
 // DownloadFile will download a url to a local file. It's efficient because it will
