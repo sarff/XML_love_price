@@ -80,14 +80,9 @@ func main() {
 		catalogPhoto: "./temp2/",
 	}
 
-	//first.DownloadPrice()
-	//second.DownloadPrice()
-
-	//first.ParseXml()
 	runParse(first)
 	InfoLogger.Println(first.name, "Done")
 
-	//second.ParseXml()
 	runParse(second)
 	InfoLogger.Println(second.name, "Done")
 
