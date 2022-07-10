@@ -20,8 +20,8 @@ var (
 )
 
 type Priceru_feed struct {
-	XMLName xml.Name `xml:"yml_catalog"`
-	Shop    []Shop   `xml:"shop"`
+	XMLName xml.Name
+	Shop    []Shop `xml:"shop"`
 }
 
 type Shop struct {
@@ -39,6 +39,13 @@ type Offer struct {
 	Id         string   `xml:"id,attr"`
 	VendorCode string   `xml:"vendorCode"`
 	Picture    []string `xml:"picture"`
+}
+
+type xmlname struct {
+	name         string
+	fileUrl      string
+	path         string
+	catalogPhoto string
 }
 
 func init() {
@@ -59,19 +66,37 @@ func init() {
 
 func main() {
 	start := time.Now()
-	//fileUrl := "https://loveyouhome.ua/index.php?route=extension/feed/unixml/priceru"
-	//DownloadFile("C://PriceLove/priceru.xml", fileUrl)
-	fileUrl2 := "https://loveyouhome.ua/index.php?route=extension/feed/unixml/tomasby"
-	DownloadPrice("./temp/tomasby.xml", fileUrl2)
 
-	ParseXml("./temp/tomasby.xml")
-	InfoLogger.Println("tomasby.xml", "Done")
+	first := xmlname{
+		name:         "priceru",
+		fileUrl:      "https://loveyouhome.ua/index.php?route=extension/feed/unixml/priceru",
+		path:         "./temp/priceru.xml",
+		catalogPhoto: "./temp/",
+	}
+	second := xmlname{
+		name:         "tomasby",
+		fileUrl:      "https://loveyouhome.ua/index.php?route=extension/feed/unixml/tomasby",
+		path:         "./temp2/tomasby.xml",
+		catalogPhoto: "./temp2/",
+	}
+
+	runParse(first)
+	InfoLogger.Println(first.name, "Done")
+
+	runParse(second)
+	InfoLogger.Println(second.name, "Done")
+
 	duration := time.Since(start)
 	fmt.Println("Время выполнения: ", duration)
 
 }
 
-func ParseXml(flieUrl string) {
+func runParse(p xmlname) {
+	p.DownloadPrice()
+	p.ParseXml()
+}
+
+func (x *xmlname) ParseXml() {
 
 	tick := time.NewTicker(time.Second)
 	defer tick.Stop()
@@ -79,7 +104,7 @@ func ParseXml(flieUrl string) {
 	results := make(map[string]string)
 	structCh := make(chan struct{})
 
-	xmlFile, err := os.Open(flieUrl)
+	xmlFile, err := os.Open(x.path)
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		ErrorLogger.Println(err)
@@ -105,10 +130,8 @@ func ParseXml(flieUrl string) {
 
 	go func(structCh chan struct{}) {
 		defer close(structCh)
-		//for i := 0; i < len(users.Shop[0].Offers[0].Offer); i++ {
 		for _, offer := range users.Shop[0].Offers[0].Offer {
-			catalog := "./temp/" + offer.VendorCode + "_L"
-			//for d := 0; d < len(users.Shop[0].Offers[0].Offer[i].Picture); d++ {
+			catalog := x.catalogPhoto + offer.VendorCode + "_L"
 			for _, picture := range offer.Picture {
 				InfoLogger.Println(offer.VendorCode + "_L")
 				results[picture] = catalog
@@ -128,17 +151,17 @@ func ParseXml(flieUrl string) {
 
 // DownloadFile will download a url to a local file. It's efficient because it will
 // write as it downloads and not load the whole file into memory.
-func DownloadPrice(filepath string, url string) {
+func (x *xmlname) DownloadPrice() {
 
 	// Get the data
-	resp, err := http.Get(url)
+	resp, err := http.Get(x.fileUrl)
 	if err != nil {
 		ErrorLogger.Println(err)
 	}
 	defer resp.Body.Close()
 
 	// Create the file
-	out, err := os.Create(filepath)
+	out, err := os.Create(x.path)
 	if err != nil {
 		ErrorLogger.Println(err)
 	}
