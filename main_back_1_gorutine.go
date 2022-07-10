@@ -111,6 +111,7 @@ func ParseXml(flieUrl string) {
 			InfoLogger.Println(offer.VendorCode + "_L")
 			go DownloadPhoto(picture, catalog, tick.C, wg)
 		}
+		wg.Wait()
 		//fmt.Println("User Name: " + users.Shop[i].)
 		//fmt.Println("Facebook Url: " + users.Offer[i].Social.Facebook)
 	}
